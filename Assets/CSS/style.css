@@ -1,0 +1,23 @@
+/* Class for hiding sections not in use */
+body {
+    width: 80%;
+    margin: 50px auto;
+}
+
+.hide {
+    display: none;
+}
+
+#question li {
+    padding: 10px;
+    margin: 10px;
+    max-width: 200px;
+    width: 100%;
+    background-color: gray;
+    transition: background-color 0.5s;
+    z-index: 10;
+}
+
+#question li:hover {
+    background-color: darkgray;
+}
