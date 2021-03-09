@@ -11,7 +11,7 @@ body {
 #question li {
     padding: 10px;
     margin: 10px;
-    max-width: 200px;
+    max-width: 500px;
     width: 100%;
     background-color: gray;
     transition: background-color 0.5s;

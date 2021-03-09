@@ -48,8 +48,77 @@ const questionLibrary = {
                 correct: false
             }
         }
+    },
+    question3: {
+        text: `What is the difference between triple equals (===) and double equals (==) in JavaScript?`,
+        answers: {
+            answer1: {
+                text: `Double equals sets a variable equal to a value, triple equals compares values/variables`,
+                correct: false
+            },
+            answer2: {
+                text: `Double equals compares value and type, triple equals only compares value`,
+                correct: false
+            },
+            answer3: {
+                text: `There is no difference`,
+                correct: false
+            },
+            answer4: {
+                text: `Triple equals compares value and type, double equals only compares value (correct)`,
+                correct: true
+            }
+        }
+    },
+    question4: {
+        text: `What is a major advantage of using back ticks (\`\`) for enclosing strings?`,
+        answers: {
+            answer1: {
+                text: `They look cool`,
+                correct: false
+            },
+            answer2: {
+                text: `They are better for performance`,
+                correct: false
+            },
+            answer3: {
+                text: `You don't need to escape most special characters`,
+                correct: true
+            },
+            answer4: {
+                text: `There is no advantage`,
+                correct: false
+            }
+        }
+    },
+    question5: {
+        text: `When passing an object or array into local storage, what method must be used?`,
+        answers: {
+            answer1: {
+                text: `JSON.parse()`,
+                correct: false
+            },
+            answer2: {
+                text: `.toString()`,
+                correct: false
+            },
+            answer3: {
+                text: `JSON.stringify()`,
+                correct: true
+            },
+            answer4: {
+                text: `.join()`,
+                correct: false
+            }
+        }
     }
     // Add other questions once confirmed this method will work
+}
+
+const tally = {
+    correct: 0,
+    incorrect: 0,
+    timeLeft: 0
 }
 
 const init = () => {
@@ -63,7 +132,12 @@ const startGame = () => {
     const heading = document.querySelector("#question h2");
     const questionP = document.querySelector("#question p");
     const answers = document.querySelectorAll("#question li");
-    const correct = document.querySelector("#question h3");
+    const correct = document.querySelector("#question #correct");
+
+    // Reset scores for each quiz round
+    tally.correct = 0;
+    tally.incorrect = 0;
+
     let answerText = [];
     while (answerText.length < answers.length) {
         answerText.push(document.createElement("span"));
@@ -84,14 +158,52 @@ const startGame = () => {
         questionCounter++;
     }
 
+    // Question countdown section
+    let timeLeft = 60;
+
+    const timerFunction = () => {
+        document.querySelector("#question #timer").innerText = `Timer: ${timeLeft}`;
+        if (timeLeft <= 0) {
+            clearInterval(questionTimer);
+            questionScreen.classList.toggle("hide");
+            document.querySelector("#times-up").classList.toggle("hide");
+            let timeLeft2 = 3;
+            const timesUpTimer = setInterval(function () {
+                if (timeLeft2 === 0) {
+                    clearInterval(timesUpTimer);
+                    document.querySelector("#times-up").classList.toggle("hide");
+                    // Stores finish time in global tally object
+                    tally.timeLeft = timeLeft;
+                    showFinishScreen();
+                }
+                timeLeft2--;
+            }, 1000);
+            // Prevents decrementer from running again (resulting in -1 final time) if timer hits 0
+            return;
+        }
+        timeLeft--;
+        // Sets 1 second interval
+    }
+
+    const questionTimer = setInterval(timerFunction, 1000);
+
     // Initializes first question before event listeners take over
     questionServer("question1");
 
     answers.forEach(answer => {
         answer.addEventListener("click", function(event) {
+
             if (answer.dataset.correct === "true") {
+                tally.correct++;
                 correct.innerHTML = "<em>Correct!</em>";
             } else {
+                if (timeLeft >= 5) {
+                    timeLeft -= 5;
+                } else {
+                    timeLeft = 0;
+                }
+                
+                tally.incorrect++;
                 correct.innerHTML = "<strong>WRONG</strong>";
             }
 
@@ -103,6 +215,10 @@ const startGame = () => {
 
             // Once all questions have been answered
             } else {
+                // Prevents questionTimer from continuing to run in background
+                clearInterval(questionTimer);
+                // Stores finish time in global tally object
+                tally.timeLeft = timeLeft;
                 showFinishScreen();
             }
         });
@@ -110,9 +226,11 @@ const startGame = () => {
 }
 
 const showFinishScreen = () => {
-    questionScreen.classList.toggle("hide");
+    questionScreen.classList.add("hide");
     finishScreen.classList.toggle("hide");
-
+    console.log(tally.correct);
+    console.log(tally.incorrect);
+    console.log(tally.timeLeft);
 
     // showScores();
 }
