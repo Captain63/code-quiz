@@ -115,10 +115,10 @@ const questionLibrary = {
     // Add other questions once confirmed this method will work
 }
 
-const tally = {
+let tally = {
     correct: 0,
     incorrect: 0,
-    timeLeft: 0
+    timeLeftCount: 0,
 }
 
 const init = () => {
@@ -137,6 +137,7 @@ const startGame = () => {
     // Reset scores for each quiz round
     tally.correct = 0;
     tally.incorrect = 0;
+    tally.timeLeftCount = 0;
 
     let answerText = [];
     while (answerText.length < answers.length) {
@@ -173,7 +174,7 @@ const startGame = () => {
                     clearInterval(timesUpTimer);
                     document.querySelector("#times-up").classList.toggle("hide");
                     // Stores finish time in global tally object
-                    tally.timeLeft = timeLeft;
+                    tally.timeLeftCount = timeLeft;
                     showFinishScreen();
                 }
                 timeLeft2--;
@@ -212,35 +213,103 @@ const startGame = () => {
             // Confirms next question exists before proceeding to populate
             if (questionLibrary[`question${questionCounter}`]) {
                 questionServer(`question${questionCounter}`);
+                console.log(questionCounter);
 
             // Once all questions have been answered
             } else {
                 // Prevents questionTimer from continuing to run in background
                 clearInterval(questionTimer);
                 // Stores finish time in global tally object
-                tally.timeLeft = timeLeft;
+                tally.timeLeftCount = timeLeft;
                 showFinishScreen();
             }
         });
     })
 }
 
+const finalScores = [];
+
 const showFinishScreen = () => {
     questionScreen.classList.add("hide");
     finishScreen.classList.toggle("hide");
-    console.log(tally.correct);
-    console.log(tally.incorrect);
-    console.log(tally.timeLeft);
+    const finalScore = document.querySelector("#finish ul");
 
-    // showScores();
+    /* Clears any existing score so new score isn't appended onto existing list items */
+    finalScore.innerHTML = "";
+
+    localStorage.clear();
+
+    const listItems = [];
+
+    // Creates an array of 3 list items
+    for (let i = 0; i < 3; i++) {
+        listItems.push(document.createElement("li"));
+    }
+
+    // Assigns score values to list items
+    listItems[0].textContent = `Time Remaining: ${tally.timeLeftCount}`;
+    listItems[1].textContent = `# Right: ${tally.correct}`;
+    listItems[2].textContent = `# Wrong: ${tally.incorrect}`;
+
+    // Appends each list item to ul
+    listItems.forEach(listItem => {
+        finalScore.appendChild(listItem);
+    })
+
+    const initialsForm = document.querySelector("#finish form");
+    const initialsInput = document.querySelector("#finish input");
+
+    initialsForm.addEventListener("submit", event => {
+        event.preventDefault();
+
+        // Adds initials property to tally object
+        tally.initials = initialsInput.value;
+
+        const tallyArray = [tally.initials, tally.timeLeftCount, tally.correct];
+        finalScores.push(tallyArray);
+
+        localStorage.setItem("scores", JSON.stringify(finalScores));
+        showScores();
+    })
+
 }
 
 const showScores = () => {
-    
+    questionScreen.classList.add("hide");
+    finishScreen.classList.add("hide");
+    scoresScreen.classList.remove("hide");
+
+    const scores = JSON.parse(localStorage.getItem("scores"));
+    const scoreList = document.querySelector("#scores ul");
+    const scoreListItems = [];
+
+    /* Clears any existing scores of list items aren't appended onto existing list items */
+    scoreList.innerHTML = "";
+
+    // Creates as many list items as there are score entries
+    for (let i = 0; i < scores.length; i++) {
+        scoreListItems.push(document.createElement("li"));
+    }
+
+    for (let i = 0; i < scoreListItems.length; i++) {
+        scoreListItems[i].textContent = `${scores[i][0]}: ${scores[i][1]} seconds | ${scores[i][2]} correct`;
+        scoreList.appendChild(scoreListItems[i]);
+    }
+
+    const playAgain = document.querySelector("#play-again");
+
+    playAgain.addEventListener("click", init);
+
+    const clearScores = document.querySelector("#clear-scores");
+
+    clearScores.addEventListener("click", () => {
+        localStorage.clear();
+        // showScores();
+    })
 }
 
 // Start button event listener to trigger sequence
 startButton.addEventListener("click", startGame);
 
-// Runs on load time and also called on Restart button
+// Runs on load time and also called on Play Again button
 init();
