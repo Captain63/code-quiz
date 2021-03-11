@@ -4,6 +4,8 @@ const questionScreen = document.querySelector("#question");
 const finishScreen = document.querySelector("#finish");
 const scoresScreen = document.querySelector("#scores");
 const startButton = document.querySelector("#start-button");
+const initialsForm = document.querySelector("#finish form");
+const initialsInput = document.querySelector("#finish input");
 
 // Question library for serving questions and evaluating user responses
 const questionLibrary = {
@@ -112,7 +114,6 @@ const questionLibrary = {
             }
         }
     }
-    // Add other questions once confirmed this method will work
 }
 
 let tally = {
@@ -127,22 +128,26 @@ const init = () => {
 }
 
 const startGame = () => {
-    welcomeScreen.classList.toggle("hide");
-    questionScreen.classList.toggle("hide");
+    welcomeScreen.classList.add("hide");
+    questionScreen.classList.remove("hide");
     const heading = document.querySelector("#question h2");
     const questionP = document.querySelector("#question p");
     const answers = document.querySelectorAll("#question li");
     const correct = document.querySelector("#question #correct");
 
-    // Reset scores for each quiz round
-    tally.correct = 0;
-    tally.incorrect = 0;
-    tally.timeLeftCount = 0;
+    correct.innerHTML = "";
 
-    let answerText = [];
+    // Record scores for each round
+    let correctCount = 0;
+    let incorrectCount = 0;
+
+    const answerText = [];
     while (answerText.length < answers.length) {
         answerText.push(document.createElement("span"));
     }
+
+    // Question countdown section
+    let timeLeft = 60;
 
     let questionCounter = 1;
     const questionServer = (question) => {        
@@ -156,26 +161,29 @@ const startGame = () => {
             answer.setAttribute("data-correct", `${questionLibrary[question].answers[answerSelector].correct}`);
             answerCounter++;
         })
-        questionCounter++;
     }
-
-    // Question countdown section
-    let timeLeft = 60;
 
     const timerFunction = () => {
         document.querySelector("#question #timer").innerText = `Timer: ${timeLeft}`;
         if (timeLeft <= 0) {
             clearInterval(questionTimer);
-            questionScreen.classList.toggle("hide");
-            document.querySelector("#times-up").classList.toggle("hide");
+            questionScreen.classList.add("hide");
+            document.querySelector("#times-up").classList.remove("hide");
+            answers.forEach(answer => {
+                answer.removeEventListener("click", questionChecker);
+            })
             let timeLeft2 = 3;
             const timesUpTimer = setInterval(function () {
                 if (timeLeft2 === 0) {
                     clearInterval(timesUpTimer);
-                    document.querySelector("#times-up").classList.toggle("hide");
+                    document.querySelector("#times-up").classList.add("hide");
                     // Stores finish time in global tally object
                     tally.timeLeftCount = timeLeft;
                     showFinishScreen();
+                    const AnswerTextSpan = document.querySelectorAll("#question li span");
+                    AnswerTextSpan.forEach(span => {
+                        span.remove();
+                    })
                 }
                 timeLeft2--;
             }, 1000);
@@ -191,39 +199,58 @@ const startGame = () => {
     // Initializes first question before event listeners take over
     questionServer("question1");
 
-    answers.forEach(answer => {
-        answer.addEventListener("click", function(event) {
+    const questionChecker = event => {
 
-            if (answer.dataset.correct === "true") {
-                tally.correct++;
-                correct.innerHTML = "<em>Correct!</em>";
-            } else {
-                if (timeLeft >= 5) {
-                    timeLeft -= 5;
-                } else {
-                    timeLeft = 0;
-                }
-                
-                tally.incorrect++;
-                correct.innerHTML = "<strong>WRONG</strong>";
-            }
+    if (
+        (event.target.dataset.correct === "true") ||
+        (event.target.parentElement.dataset.correct === "true")
+    ) {
+        correctCount++;
+        correct.innerHTML = "<em>Correct!</em>";
+    } else {
+        if (timeLeft >= 5) {
+            timeLeft -= 5;
+        } else {
+            timeLeft = 0;
+        }
+            
+        incorrectCount++;
+        correct.innerHTML = "<strong>WRONG</strong>";
+    }
 
+        answerText.textContent = "";
+
+        // Confirms next question exists before proceeding to populate
+        
+        questionCounter++;
+        if (questionLibrary[`question${questionCounter}`]) {
+            questionServer(`question${questionCounter}`);
+            console.log(questionCounter);
+
+            console.log(questionLibrary[`question${questionCounter}`]);
+        // Once all questions have been answered
+        } else {
+            // Prevents questionTimer from continuing to run in background
+            clearInterval(questionTimer);
             answerText.textContent = "";
+            // Stores finish time in global tally object
+            tally.timeLeftCount = timeLeft;
+            tally.correct = correctCount;
+            tally.incorrect = incorrectCount;
+            showFinishScreen();
+            const AnswerTextSpan = document.querySelectorAll("#question li span");
+            AnswerTextSpan.forEach(span => {
+                span.remove();
+            })
+            questionCounter = 1;
+            answers.forEach(answer => {
+                answer.removeEventListener("click", questionChecker);
+            })
+        }
+    };
 
-            // Confirms next question exists before proceeding to populate
-            if (questionLibrary[`question${questionCounter}`]) {
-                questionServer(`question${questionCounter}`);
-                console.log(questionCounter);
-
-            // Once all questions have been answered
-            } else {
-                // Prevents questionTimer from continuing to run in background
-                clearInterval(questionTimer);
-                // Stores finish time in global tally object
-                tally.timeLeftCount = timeLeft;
-                showFinishScreen();
-            }
-        });
+    answers.forEach(answer => {
+        answer.addEventListener("click", questionChecker);
     })
 }
 
@@ -231,13 +258,13 @@ const finalScores = [];
 
 const showFinishScreen = () => {
     questionScreen.classList.add("hide");
-    finishScreen.classList.toggle("hide");
+    finishScreen.classList.remove("hide");
     const finalScore = document.querySelector("#finish ul");
 
     /* Clears any existing score so new score isn't appended onto existing list items */
     finalScore.innerHTML = "";
 
-    localStorage.clear();
+    let tallyArray = [];
 
     const listItems = [];
 
@@ -256,22 +283,22 @@ const showFinishScreen = () => {
         finalScore.appendChild(listItem);
     })
 
-    const initialsForm = document.querySelector("#finish form");
-    const initialsInput = document.querySelector("#finish input");
-
-    initialsForm.addEventListener("submit", event => {
+    const initialsSubmission = event => {
         event.preventDefault();
 
+        console.log(tally);
         // Adds initials property to tally object
         tally.initials = initialsInput.value;
 
-        const tallyArray = [tally.initials, tally.timeLeftCount, tally.correct];
+        tallyArray = [tally.initials, tally.timeLeftCount, tally.correct];
         finalScores.push(tallyArray);
 
         localStorage.setItem("scores", JSON.stringify(finalScores));
         showScores();
-    })
+        initialsForm.removeEventListener("submit", initialsSubmission);
+    }
 
+    initialsForm.addEventListener("submit", initialsSubmission);
 }
 
 const showScores = () => {
@@ -291,10 +318,14 @@ const showScores = () => {
         scoreListItems.push(document.createElement("li"));
     }
 
+    console.log(scores);
+
     for (let i = 0; i < scoreListItems.length; i++) {
         scoreListItems[i].textContent = `${scores[i][0]}: ${scores[i][1]} seconds | ${scores[i][2]} correct`;
         scoreList.appendChild(scoreListItems[i]);
     }
+
+    console.log(scoreListItems);
 
     const playAgain = document.querySelector("#play-again");
 
@@ -304,7 +335,7 @@ const showScores = () => {
 
     clearScores.addEventListener("click", () => {
         localStorage.clear();
-        // showScores();
+        showScores();
     })
 }
 
