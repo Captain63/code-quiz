@@ -10,6 +10,7 @@
     </head>
 
     <body>
+        <button id="nav-scores">High Scores</button>
         <!-- Initial Welcome Message -->
         <section id="welcome">
             <h1>Welcome to the Code Challenge</h1>
@@ -46,7 +47,7 @@
             <p>Enter your initials to save your score for posterity:</p>
             <form>
                 <label for="initials">Your Initials</label>
-                <input type="text" name="initials" required>
+                <input type="text" minlength="2" maxlength="3" name="initials" required>
             </form>
         </section>
 
@@ -58,7 +59,7 @@
             <ul>
 
             </ul>
-            <button id="play-again">Play Again</button>
+            <button id="play-again">Go Back</button>
             <button id="clear-scores">Clear High Scores</button>
         </section>
 

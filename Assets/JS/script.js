@@ -6,6 +6,7 @@ const scoresScreen = document.querySelector("#scores");
 const startButton = document.querySelector("#start-button");
 const initialsForm = document.querySelector("#finish form");
 const initialsInput = document.querySelector("#finish input");
+const scoreButton = document.querySelector("#nav-scores");
 
 // Question library for serving questions and evaluating user responses
 const questionLibrary = {
@@ -124,11 +125,13 @@ let tally = {
 
 const init = () => {
     welcomeScreen.classList.remove("hide");
+    scoreButton.classList.remove("hide");
     scoresScreen.classList.add("hide");
 }
 
 const startGame = () => {
     welcomeScreen.classList.add("hide");
+    scoreButton.classList.add("hide");
     questionScreen.classList.remove("hide");
     const heading = document.querySelector("#question h2");
     const questionP = document.querySelector("#question p");
@@ -254,7 +257,7 @@ const startGame = () => {
     })
 }
 
-const finalScores = [];
+let finalScoresArray = [];
 
 const showFinishScreen = () => {
     questionScreen.classList.add("hide");
@@ -291,9 +294,9 @@ const showFinishScreen = () => {
         tally.initials = initialsInput.value;
 
         tallyArray = [tally.initials, tally.timeLeftCount, tally.correct];
-        finalScores.push(tallyArray);
+        finalScoresArray.push(tallyArray);
 
-        localStorage.setItem("scores", JSON.stringify(finalScores));
+        localStorage.setItem("scores", JSON.stringify(finalScoresArray));
         showScores();
         initialsForm.removeEventListener("submit", initialsSubmission);
     }
@@ -304,43 +307,58 @@ const showFinishScreen = () => {
 const showScores = () => {
     questionScreen.classList.add("hide");
     finishScreen.classList.add("hide");
+    welcomeScreen.classList.add("hide");
     scoresScreen.classList.remove("hide");
-
-    const scores = JSON.parse(localStorage.getItem("scores"));
+    
     const scoreList = document.querySelector("#scores ul");
-    const scoreListItems = [];
-
-    /* Clears any existing scores of list items aren't appended onto existing list items */
-    scoreList.innerHTML = "";
-
-    // Creates as many list items as there are score entries
-    for (let i = 0; i < scores.length; i++) {
-        scoreListItems.push(document.createElement("li"));
-    }
-
-    console.log(scores);
-
-    for (let i = 0; i < scoreListItems.length; i++) {
-        scoreListItems[i].textContent = `${scores[i][0]}: ${scores[i][1]} seconds | ${scores[i][2]} correct`;
-        scoreList.appendChild(scoreListItems[i]);
-    }
-
-    console.log(scoreListItems);
+    const scores = JSON.parse(localStorage.getItem("scores"));
 
     const playAgain = document.querySelector("#play-again");
 
     playAgain.addEventListener("click", init);
 
-    const clearScores = document.querySelector("#clear-scores");
+    // Checks if there are scores to display in LocalStorage() -- otherwise filler text is shown
+    if (scores) { 
+        const scoreListItems = [];
 
-    clearScores.addEventListener("click", () => {
-        localStorage.clear();
-        showScores();
-    })
+        /* Clears any existing scores so list items aren't appended onto existing list items */
+        scoreList.innerHTML = "";
+
+        // Creates as many list items as there are score entries
+        for (let i = 0; i < scores.length; i++) {
+            scoreListItems.push(document.createElement("li"));
+        }
+
+        console.log(scores);
+
+        for (let i = 0; i < scoreListItems.length; i++) {
+            scoreListItems[i].textContent = `${scores[i][0]}: ${scores[i][1]} seconds | ${scores[i][2]} correct`;
+            scoreList.appendChild(scoreListItems[i]);
+        }
+
+        console.log(scoreListItems);
+
+        const clearScores = document.querySelector("#clear-scores");
+
+        clearScores.addEventListener("click", () => {
+            localStorage.clear();
+            scoreListItems.forEach(listItem => {
+                listItem.remove();
+            })
+            scoreList.innerHTML = "<p>Cleared!</p>";
+            // Empties array so scores aren't saved when localStorage is cleared
+            finalScoresArray = [];
+        })
+    } else {
+        scoreList.innerHTML = "<p>Awaiting new results!</p>"
+    }
+    
 }
 
 // Start button event listener to trigger sequence
 startButton.addEventListener("click", startGame);
+
+scoreButton.addEventListener("click", showScores);
 
 // Runs on load time and also called on Play Again button
 init();
