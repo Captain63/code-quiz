@@ -7,10 +7,16 @@
 
          <!-- Sets viewport scaling to be consistent across devices -->
          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+         <!-- Sets favicon -->
+        <link rel="icon" type="image/svg+xml" href="./Assets/Images/96px-pencil.svg">
     </head>
 
     <body>
-        <button id="nav-scores">High Scores</button>
+        <nav>
+            <button id="nav-scores">High Scores</button>
+        </nav>
+        
         <!-- Initial Welcome Message -->
         <section id="welcome">
             <h1>Welcome to the Code Challenge</h1>
@@ -18,11 +24,16 @@
             <button id="start-button">Test Your Knowledge</button>
         </section>
 
-        <!-- Question base format -->
+        <!-- Question screen -->
         <section id="question" class="hide">
-            <h3 id="timer">Timer: 60</h3>
-            <h2>Question #</h2>
+            <div class="grid">
+                <!-- Timer display -->
+                <h3 id="timer">Timer: 60</h3>
+                <!-- Question # updated as answers are populated -->
+                <h2>Question #</h2>
+            </div>
             <p>Question text</p>
+            <!-- Answers appended into existing list items as spans -->
             <ul>
                 <li>A) </li>
                 <li>B) </li>
@@ -41,10 +52,11 @@
         <section id="finish" class="hide">
             <h2>Finished!</h2>
             <p>Your final score:</p>
+            <!-- Empty list to host score stats populated from tally object -->
             <uL>
 
             </uL>
-            <p>Enter your initials to save your score for posterity:</p>
+            <p>Enter your initials to save your score for posterity.</p>
             <form>
                 <label for="initials">Your Initials</label>
                 <input type="text" minlength="2" maxlength="3" name="initials" required>
@@ -56,11 +68,14 @@
             <h2>
                 High Scores
             </h2>
+            <!-- List to host scores populated from localStorage -->
             <ul>
 
             </ul>
-            <button id="play-again">Go Back</button>
-            <button id="clear-scores">Clear High Scores</button>
+            <div class="grid">
+                <button id="play-again">Go Back</button>
+                <button id="clear-scores">Clear High Scores</button>
+            </div>
         </section>
 
         <script src="./Assets/JS/script.js"></script>

@@ -152,6 +152,8 @@ const startGame = () => {
     // Question countdown section
     let timeLeft = 60;
 
+    document.querySelector("#question #timer").innerText = `Timer: ${timeLeft}`;
+
     let questionCounter = 1;
     const questionServer = (question) => {        
         heading.textContent = `Question ${questionCounter}`;
@@ -309,6 +311,7 @@ const showScores = () => {
     finishScreen.classList.add("hide");
     welcomeScreen.classList.add("hide");
     scoresScreen.classList.remove("hide");
+    scoreButton.classList.add("hide");
     
     const scoreList = document.querySelector("#scores ul");
     const scores = JSON.parse(localStorage.getItem("scores"));
@@ -350,7 +353,7 @@ const showScores = () => {
             finalScoresArray = [];
         })
     } else {
-        scoreList.innerHTML = "<p>Awaiting new results!</p>"
+        scoreList.innerHTML = "<p>Awaiting new scores!</p>"
     }
     
 }
