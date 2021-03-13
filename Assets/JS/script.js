@@ -1,12 +1,25 @@
-// DOM declarations
+// Section DOM declarations
 const welcomeScreen = document.querySelector("#welcome");
 const questionScreen = document.querySelector("#question");
 const finishScreen = document.querySelector("#finish");
 const scoresScreen = document.querySelector("#scores");
+const timesUpScreen = document.querySelector("#times-up");
+
+// Welcome screen DOM delcarations
+const scoreButton = document.querySelector("#nav-scores");
 const startButton = document.querySelector("#start-button");
+
+// Questions screen DOM declarations
+const heading = document.querySelector("#question h2");
+const questionP = document.querySelector("#question p");
+const answers = document.querySelectorAll("#question li");
+const correct = document.querySelector("#question #correct");
+const timerHeading = document.querySelector("#question #timer");
+
+// Finished screen DOM declarations
+const finalScore = document.querySelector("#finish ul");
 const initialsForm = document.querySelector("#finish form");
 const initialsInput = document.querySelector("#finish input");
-const scoreButton = document.querySelector("#nav-scores");
 
 // Question library for serving questions and evaluating user responses
 const questionLibrary = {
@@ -68,7 +81,7 @@ const questionLibrary = {
                 correct: false
             },
             answer4: {
-                text: `Triple equals compares value and type, double equals only compares value (correct)`,
+                text: `Triple equals compares value and type, double equals only compares value`,
                 correct: true
             }
         }
@@ -117,44 +130,46 @@ const questionLibrary = {
     }
 }
 
+// Global tally object to record score of each round. Accessed by startGame() and showFinishScreen()
 let tally = {
     correct: 0,
     incorrect: 0,
     timeLeftCount: 0,
 }
 
+// Function to show Welcome Message on page load or if user chooses to play again
 const init = () => {
     welcomeScreen.classList.remove("hide");
     scoreButton.classList.remove("hide");
     scoresScreen.classList.add("hide");
 }
 
+// Function to initiate game after Welcome screen */
 const startGame = () => {
     welcomeScreen.classList.add("hide");
     scoreButton.classList.add("hide");
     questionScreen.classList.remove("hide");
-    const heading = document.querySelector("#question h2");
-    const questionP = document.querySelector("#question p");
-    const answers = document.querySelectorAll("#question li");
-    const correct = document.querySelector("#question #correct");
 
+    // Clears existing correct message if user reinitiates game after completing
     correct.innerHTML = "";
 
     // Record scores for each round
     let correctCount = 0;
     let incorrectCount = 0;
 
-    const answerText = [];
-    while (answerText.length < answers.length) {
-        answerText.push(document.createElement("span"));
-    }
-
-    // Question countdown section
+    // Declares empty array and then populates with four spans
+    const answerText = document.querySelectorAll("#question li span");
+    
+    // Question countdown timer variable set
     let timeLeft = 60;
+    timerHeading.textContent = `Timer: ${timeLeft}`;
 
     document.querySelector("#question #timer").innerText = `Timer: ${timeLeft}`;
 
+    // "Index" value for questionServer to advance question displayed after answer is clicked
     let questionCounter = 1;
+
+    // Question server function - accesses questionLibrary properties to populate each question
     const questionServer = (question) => {        
         heading.textContent = `Question ${questionCounter}`;
         questionP.textContent = questionLibrary[question].text;
@@ -162,57 +177,66 @@ const startGame = () => {
         answers.forEach (answer => {
             let answerSelector = "answer" + answerCounter.toString();
             answerText[answerCounter - 1].textContent = questionLibrary[question].answers[answerSelector].text;
-            answer.appendChild(answerText[answerCounter - 1]);
+            // answer.appendChild(answerText[answerCounter - 1]);
             answer.setAttribute("data-correct", `${questionLibrary[question].answers[answerSelector].correct}`);
             answerCounter++;
         })
     }
 
+    // Question timer function (called by setInterval)
     const timerFunction = () => {
-        document.querySelector("#question #timer").innerText = `Timer: ${timeLeft}`;
+        timerHeading.textContent = `Timer: ${timeLeft}`;
+
+        // Fires if timer runs out
         if (timeLeft <= 0) {
+            // Prevents questionTimer from continuing to run in background
             clearInterval(questionTimer);
             questionScreen.classList.add("hide");
-            document.querySelector("#times-up").classList.remove("hide");
+            timesUpScreen.classList.remove("hide");
+            // Removes answer event listeners so they aren't stacked on next startGame() call
             answers.forEach(answer => {
                 answer.removeEventListener("click", questionChecker);
             })
-            let timeLeft2 = 3;
+            let timeLeft2 = 2;
+            // Timer for how long Times Up screen displays
             const timesUpTimer = setInterval(function () {
                 if (timeLeft2 === 0) {
+                    // Prevents timesUpTimer from continuing to run in background
                     clearInterval(timesUpTimer);
-                    document.querySelector("#times-up").classList.add("hide");
-                    // Stores finish time in global tally object
+                    timesUpScreen.classList.add("hide");
+                    // Stores finish time and scores in global tally object
                     tally.timeLeftCount = timeLeft;
+                    tally.correct = correctCount;
+                    tally.incorrect = incorrectCount;
                     showFinishScreen();
-                    const AnswerTextSpan = document.querySelectorAll("#question li span");
-                    AnswerTextSpan.forEach(span => {
-                        span.remove();
-                    })
                 }
                 timeLeft2--;
             }, 1000);
-            // Prevents decrementer from running again (resulting in -1 final time) if timer hits 0
+            // Prevents timeLeft decrementer from running again (resulting in -1 final time) if timer hits 0
             return;
         }
         timeLeft--;
         // Sets 1 second interval
     }
 
+    // Calls questionTimer on startGame() call
     const questionTimer = setInterval(timerFunction, 1000);
 
     // Initializes first question before event listeners take over
     questionServer("question1");
 
+    // Function to evaluate if questions are correct and serve next question
     const questionChecker = event => {
 
     if (
+        // Checks list item and parent of list item (if user clicks on span)
         (event.target.dataset.correct === "true") ||
         (event.target.parentElement.dataset.correct === "true")
     ) {
         correctCount++;
         correct.innerHTML = "<em>Correct!</em>";
     } else {
+        // Confirms timeLeft subtraction won't result in a negative final time
         if (timeLeft >= 5) {
             timeLeft -= 5;
         } else {
@@ -222,54 +246,46 @@ const startGame = () => {
         incorrectCount++;
         correct.innerHTML = "<strong>WRONG</strong>";
     }
-
-        answerText.textContent = "";
-
-        // Confirms next question exists before proceeding to populate
         
         questionCounter++;
+        // Confirms next question exists based off new questionCounter value before proceeding to populate
         if (questionLibrary[`question${questionCounter}`]) {
             questionServer(`question${questionCounter}`);
-            console.log(questionCounter);
-
-            console.log(questionLibrary[`question${questionCounter}`]);
+            
         // Once all questions have been answered
         } else {
             // Prevents questionTimer from continuing to run in background
             clearInterval(questionTimer);
-            answerText.textContent = "";
-            // Stores finish time in global tally object
+            // Stores finish time and scores in global tally object
             tally.timeLeftCount = timeLeft;
             tally.correct = correctCount;
             tally.incorrect = incorrectCount;
             showFinishScreen();
-            const AnswerTextSpan = document.querySelectorAll("#question li span");
-            AnswerTextSpan.forEach(span => {
-                span.remove();
-            })
+            
+            // Resets questionCounter to 1
             questionCounter = 1;
+            // Removes answer event listeners so they aren't stacked on next startGame() call
             answers.forEach(answer => {
                 answer.removeEventListener("click", questionChecker);
             })
         }
     };
 
+    // Assigns event listeners to call questionChecker function when an answer is clicked
     answers.forEach(answer => {
         answer.addEventListener("click", questionChecker);
     })
 }
 
-let finalScoresArray = [];
+// Array to store final scores -- created in global scope for access by showFinishScreen() and showScores()
+const finalScoresArray = [];
 
 const showFinishScreen = () => {
     questionScreen.classList.add("hide");
     finishScreen.classList.remove("hide");
-    const finalScore = document.querySelector("#finish ul");
 
     /* Clears any existing score so new score isn't appended onto existing list items */
     finalScore.innerHTML = "";
-
-    let tallyArray = [];
 
     const listItems = [];
 
@@ -291,18 +307,22 @@ const showFinishScreen = () => {
     const initialsSubmission = event => {
         event.preventDefault();
 
-        console.log(tally);
         // Adds initials property to tally object
         tally.initials = initialsInput.value;
 
-        tallyArray = [tally.initials, tally.timeLeftCount, tally.correct];
+        // Creates array of tally properties to push to tallyArray
+        const tallyArray = [tally.initials, tally.timeLeftCount, tally.correct];
         finalScoresArray.push(tallyArray);
 
+        // Sends tallyArray to localStorage
         localStorage.setItem("scores", JSON.stringify(finalScoresArray));
         showScores();
+
+        // Removes event listener so that event listeners aren't stacked on input submission
         initialsForm.removeEventListener("submit", initialsSubmission);
     }
 
+    // Adds event listener to initials form to call initialsSubmission()
     initialsForm.addEventListener("submit", initialsSubmission);
 }
 
@@ -310,10 +330,12 @@ const showScores = () => {
     questionScreen.classList.add("hide");
     finishScreen.classList.add("hide");
     welcomeScreen.classList.add("hide");
-    scoresScreen.classList.remove("hide");
     scoreButton.classList.add("hide");
+    scoresScreen.classList.remove("hide");
     
     const scoreList = document.querySelector("#scores ul");
+
+    // Retrieves scores value from localStorage
     const scores = JSON.parse(localStorage.getItem("scores"));
 
     const playAgain = document.querySelector("#play-again");
@@ -332,14 +354,11 @@ const showScores = () => {
             scoreListItems.push(document.createElement("li"));
         }
 
-        console.log(scores);
-
+        // Assigns scores from each round to one list item
         for (let i = 0; i < scoreListItems.length; i++) {
             scoreListItems[i].textContent = `${scores[i][0]}: ${scores[i][1]} seconds | ${scores[i][2]} correct`;
             scoreList.appendChild(scoreListItems[i]);
         }
-
-        console.log(scoreListItems);
 
         const clearScores = document.querySelector("#clear-scores");
 
@@ -353,14 +372,15 @@ const showScores = () => {
             finalScoresArray = [];
         })
     } else {
+        // Filler text if no scores are stored in localStorage
         scoreList.innerHTML = "<p>Awaiting new scores!</p>"
     }
-    
 }
 
-// Start button event listener to trigger sequence
+// Start button event listener to call startGame()
 startButton.addEventListener("click", startGame);
 
+// High Scores event listener to call showScores()
 scoreButton.addEventListener("click", showScores);
 
 // Runs on load time and also called on Play Again button
