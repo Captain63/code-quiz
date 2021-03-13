@@ -41,7 +41,7 @@ p {
 }
 
 /* Button base styles */
-button {
+button,input[type="submit"] {
     padding: 10px 20px;
     border-radius: 10px;
     background-color: purple;
@@ -56,12 +56,12 @@ button {
 }
 
 /* Button hover effect */
-button:hover {
+button:hover,input[type="submit"]:hover {
     box-shadow: 7px 7px 10px rgba(0, 0, 0, 0.5);
 }
 
 /* Button focus (click) effect */
-button:focus {
+button:focus,input[type="submit"]:hover {
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
     outline: none;
 }
@@ -111,11 +111,8 @@ nav {
     border-radius: 5px;
 }
 
-#question li:hover {
-    background-color: rgb(223, 111, 223);
-}
-
 #question li:active {
+    background-color: rgb(223, 111, 223);
     position: relative;
     top: 2px;
 }
@@ -164,8 +161,13 @@ nav {
     font-size: 120%;
 }
 
-#finish input {
+#finish input[type="text"] {
     width: 100%;
+}
+
+#finish input[type="submit"] {
+    margin: 10px 0 0;
+    outline: none;
 }
 /* END Finished section styles */
 
@@ -182,6 +184,12 @@ nav {
 } */
 
 /*  Begin media queries */
+@media only screen and (max-width: 630px) {
+    nav {
+        padding-left: 40px;
+    }
+}
+
 @media only screen and (max-width: 450px) {
     #scores .grid {
         grid-template: auto auto / auto;
@@ -192,7 +200,6 @@ nav {
 
     #scores .grid button {
         margin: 0;
-
     }
 }
 

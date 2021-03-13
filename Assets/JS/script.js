@@ -139,9 +139,9 @@ let tally = {
 
 // Function to show Welcome Message on page load or if user chooses to play again
 const init = () => {
+    scoresScreen.classList.add("hide");
     welcomeScreen.classList.remove("hide");
     scoreButton.classList.remove("hide");
-    scoresScreen.classList.add("hide");
 }
 
 // Function to initiate game after Welcome screen */
@@ -278,7 +278,7 @@ const startGame = () => {
 }
 
 // Array to store final scores -- created in global scope for access by showFinishScreen() and showScores()
-const finalScoresArray = [];
+let finalScoresArray = [];
 
 const showFinishScreen = () => {
     questionScreen.classList.add("hide");
@@ -383,5 +383,5 @@ startButton.addEventListener("click", startGame);
 // High Scores event listener to call showScores()
 scoreButton.addEventListener("click", showScores);
 
-// Runs on load time and also called on Play Again button
+// Calls init() at run time
 init();
