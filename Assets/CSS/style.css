@@ -177,12 +177,6 @@ nav {
     color: rgba(32, 0, 128, 0.7);
 }
 
-/* @media (hover: none) and (pointer: coarse) {
-    #question li:not(.nohover):hover {
-        background-color: rgb(223, 111, 223);
-    }
-} */
-
 /*  Begin media queries */
 @media only screen and (max-width: 630px) {
     nav {
