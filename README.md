@@ -1,4 +1,4 @@
-# Homework 4: Code Quiz
+# Code Quiz Application
 
 ## Project Overview
 Code Quiz 1.0 buildout. Developer created single-window application to serve quiz questions on JavaScript for user to answer and then view final score and finish time against previous attempts by same user. 
