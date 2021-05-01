@@ -15,7 +15,7 @@ Code Quiz is rounded out with streamlined CSS for a cleaner and more inuitive in
 </ul>
 
 ## Live Application
-https://captain63.github.io/homework4-code-quiz/
+https://captain63.github.io/code-quiz/
 
 ## Screenshot of Application
 ![Screenshot of finished Code Quiz application with quiz in progress](./Assets/Images/finished-code-quiz.png)
