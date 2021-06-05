@@ -1,5 +1,13 @@
 # Code Quiz Application
 
+![MIT license badge](./Assets/Images/mit-license.svg)
+
+## Table of Contents
+- [Project Overview](#project-overview)
+- [Live Application](#live-application)
+- [License](#license)
+- [Screenshots](#screenshots)
+
 ## Project Overview
 Code Quiz 1.0 buildout. Developer created single-window application to serve quiz questions on JavaScript for user to answer and then view final score and finish time against previous attempts by same user. 
 
@@ -8,14 +16,21 @@ Code Quiz uses a series of function calls to serve different screens that displa
 Code Quiz is rounded out with streamlined CSS for a cleaner and more inuitive interface, including responsive features built into the main styles and minimal media queries.
 
 ### Technologies Used:
-<ul>
-<li>JavaScript</li>
-<li>CSS</li>
-<li>HTML</li>
-</ul>
+- JavaScript
+- CSS
+- HTML
 
 ## Live Application
 https://captain63.github.io/code-quiz/
 
-## Screenshot of Application
+## License
+Permission is hereby granted, free of charge, to any person obtaining a copy of this Software and associated documentation files (the "Software"), to deal in the Software without  restriction, including without limitation the rights to use, copy, modify, merge, publish distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions.
+
+[View the full license](./LICENSE).
+
+## Screenshots
 ![Screenshot of finished Code Quiz application with quiz in progress](./Assets/Images/finished-code-quiz.png)
+
+![Screenshot of high score entry form](./Assets/Images/score-form.png)
+
+![Screenshot of high score display window](./Assets/Images/score-screen.png)
