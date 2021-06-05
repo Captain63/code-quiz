@@ -1,4 +1,4 @@
-# Code Quiz Application
+# Code Quiz
 
 ![MIT license badge](./Assets/Images/mit-license.svg)
 
