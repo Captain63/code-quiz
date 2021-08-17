@@ -130,6 +130,18 @@ const questionLibrary = [
     }
 ]
 
+// Shuffling function for questions and anwers - Fisher-Yates-Durstenfeld algorithm
+const shuffle = sourceArray => {
+    for (let i = 0; i < sourceArray.length - 1; i++) {
+        let j = i + Math.floor(Math.random() * (sourceArray.length - i));
+
+        const temp = sourceArray[j];
+        sourceArray[j] = sourceArray[i];
+        sourceArray[i] = temp;
+    }
+    return sourceArray;
+}
+
 // Global tally object to record score of each round. Accessed by startGame() and showFinishScreen()
 let tally = {
     correct: 0,
@@ -149,6 +161,14 @@ const startGame = () => {
     welcomeScreen.classList.add("hide");
     scoreButton.classList.add("hide");
     questionScreen.classList.remove("hide");
+
+    // Shuffle question order each time game is started
+    shuffle(questionLibrary);
+
+    // Shuffle answer order for each question each time game is started
+    questionLibrary.forEach(question => {
+        shuffle(question.answers);
+    })
 
     // Clears existing correct message if user reinitiates game after completing
     correct.innerHTML = "";
