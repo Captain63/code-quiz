@@ -22,119 +22,131 @@ const initialsForm = document.querySelector("#finish form");
 const initialsInput = document.querySelector("#finish input");
 
 // Question library for serving questions and evaluating user responses
-const questionLibrary = {
-    question1: {
+const questionLibrary = [
+    {
         text: `Describe the relationship between Java and JavaScript.`,
-        answers: {
-            answer1: {
+        answers: [
+            {
                 text: `Java is the desktop-based version of JavaScript`,
                 correct: false
             },
-            answer2: {
+            {
                 text: `They are not related`,
                 correct: true
             },
-            answer3: {
+            {
                 text: `JavaScript was derived from Java`,
                 correct: false
             },
-            answer4: {
+            {
                 text: `They were developed by the same team`,
                 correct: false
             }
-        }
+        ]
     },
-    question2: {
+    {
         text: `What symbol do you use to declare an array in JavaScript?`,
-        answers: {
-            answer1: {
+        answers: [
+            {
                 text: `Square brackets: []`,
                 correct: true
             },
-            answer2: {
+            {
                 text: `Parentheses: ()`,
                 correct: false
             },
-            answer3: {
+            {
                 text: `Curly brackets: {}`,
                 correct: false
             },
-            answer4: {
+            {
                 text: `Back ticks: \`\``,
                 correct: false
             }
-        }
+        ]
     },
-    question3: {
+    {
         text: `What is the difference between triple equals (===) and double equals (==) in JavaScript?`,
-        answers: {
-            answer1: {
+        answers: [
+            {
                 text: `Double equals sets a variable equal to a value, triple equals compares values/variables`,
                 correct: false
             },
-            answer2: {
+            {
                 text: `Double equals compares value and type, triple equals only compares value`,
                 correct: false
             },
-            answer3: {
+            {
                 text: `There is no difference`,
                 correct: false
             },
-            answer4: {
+            {
                 text: `Triple equals compares value and type, double equals only compares value`,
                 correct: true
             }
-        }
+        ]
     },
-    question4: {
+    {
         text: `What is a major advantage of using back ticks (\`\`) for enclosing strings?`,
-        answers: {
-            answer1: {
+        answers: [
+            {
                 text: `They look cool`,
                 correct: false
             },
-            answer2: {
+            {
                 text: `They are better for performance`,
                 correct: false
             },
-            answer3: {
+            {
                 text: `You don't need to escape most special characters`,
                 correct: true
             },
-            answer4: {
+            {
                 text: `There is no advantage`,
                 correct: false
             }
-        }
+        ]  
     },
-    question5: {
+    {
         text: `When passing an object or array into local storage, what method must be used?`,
-        answers: {
-            answer1: {
+        answers: [
+            {
                 text: `JSON.parse()`,
                 correct: false
             },
-            answer2: {
+            {
                 text: `.toString()`,
                 correct: false
             },
-            answer3: {
+            {
                 text: `JSON.stringify()`,
                 correct: true
             },
-            answer4: {
+            {
                 text: `.join()`,
                 correct: false
             }
-        }
+        ]
     }
+]
+
+// Shuffling function for questions and anwers - Fisher-Yates-Durstenfeld algorithm
+const shuffle = sourceArray => {
+    for (let i = 0; i < sourceArray.length - 1; i++) {
+        let j = i + Math.floor(Math.random() * (sourceArray.length - i));
+
+        const temp = sourceArray[j];
+        sourceArray[j] = sourceArray[i];
+        sourceArray[i] = temp;
+    }
+    return sourceArray;
 }
 
 // Global tally object to record score of each round. Accessed by startGame() and showFinishScreen()
 let tally = {
     correct: 0,
     incorrect: 0,
-    timeLeftCount: 0,
+    timeLeftCount: 0
 }
 
 // Function to show Welcome Message on page load or if user chooses to play again
@@ -149,6 +161,14 @@ const startGame = () => {
     welcomeScreen.classList.add("hide");
     scoreButton.classList.add("hide");
     questionScreen.classList.remove("hide");
+
+    // Shuffle question order each time game is started
+    shuffle(questionLibrary);
+
+    // Shuffle answer order for each question each time game is started
+    questionLibrary.forEach(question => {
+        shuffle(question.answers);
+    })
 
     // Clears existing correct message if user reinitiates game after completing
     correct.innerHTML = "";
@@ -167,18 +187,17 @@ const startGame = () => {
     document.querySelector("#question #timer").innerText = `Timer: ${timeLeft}`;
 
     // "Index" value for questionServer to advance question displayed after answer is clicked
-    let questionCounter = 1;
+    let questionCounter = 0;
 
     // Question server function - accesses questionLibrary properties to populate each question
     const questionServer = (question) => {        
-        heading.textContent = `Question ${questionCounter}`;
+        heading.textContent = `Question ${question + 1}`;
         questionP.textContent = questionLibrary[question].text;
-        let answerCounter = 1;
+        let answerCounter = 0;
         answers.forEach (answer => {
-            let answerSelector = "answer" + answerCounter.toString();
-            answerText[answerCounter - 1].textContent = questionLibrary[question].answers[answerSelector].text;
+            answerText[answerCounter].textContent = questionLibrary[question].answers[answerCounter].text;
             // answer.appendChild(answerText[answerCounter - 1]);
-            answer.setAttribute("data-correct", `${questionLibrary[question].answers[answerSelector].correct}`);
+            answer.setAttribute("data-correct", `${questionLibrary[question].answers[answerCounter].correct}`);
             answerCounter++;
         })
     }
@@ -223,7 +242,7 @@ const startGame = () => {
     const questionTimer = setInterval(timerFunction, 1000);
 
     // Initializes first question before event listeners take over
-    questionServer("question1");
+    questionServer(0);
 
     // Function to evaluate if questions are correct and serve next question
     const questionChecker = event => {
@@ -249,8 +268,8 @@ const startGame = () => {
         
         questionCounter++;
         // Confirms next question exists based off new questionCounter value before proceeding to populate
-        if (questionLibrary[`question${questionCounter}`]) {
-            questionServer(`question${questionCounter}`);
+        if (questionLibrary[questionCounter]) {
+            questionServer(questionCounter);
             
         // Once all questions have been answered
         } else {
