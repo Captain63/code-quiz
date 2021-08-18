@@ -385,7 +385,7 @@ const showScores = () => {
 
         // Assigns scores from each round to one list item
         for (let i = 0; i < scoreListItems.length; i++) {
-            scoreListItems[i].textContent = `${scores[i][0]}: ${scores[i][1]} seconds | ${scores[i][2]} correct`;
+            scoreListItems[i].textContent = `${scores[i][0]}: ${scores[i][2]} correct | ${scores[i][1]} seconds`;
             scoreList.appendChild(scoreListItems[i]);
         }
 
