@@ -303,7 +303,7 @@ const showFinishScreen = () => {
     questionScreen.classList.add("hide");
     finishScreen.classList.remove("hide");
 
-    /* Clears any existing score so new score isn't appended onto existing list items */
+    // Clears any existing score so new score isn't appended onto existing list items
     finalScore.innerHTML = "";
 
     const listItems = [];
@@ -365,13 +365,23 @@ const showScores = () => {
     if (scores) { 
         const scoreListItems = [];
 
-        /* Clears any existing scores so list items aren't appended onto existing list items */
+        // Clears any existing scores so list items aren't appended onto existing list items
         scoreList.innerHTML = "";
 
         // Creates as many list items as there are score entries
         for (let i = 0; i < scores.length; i++) {
             scoreListItems.push(document.createElement("li"));
         }
+
+        // Sort array highest to lowest scores
+        scores.sort((a, b) => {
+            // If # correct is the same, defer to fastest time
+            if (b[2]===a[2]) {
+                return b[1] - a[1];
+            } else {
+                return b[2] - a[2];
+            }
+        });
 
         // Assigns scores from each round to one list item
         for (let i = 0; i < scoreListItems.length; i++) {
@@ -392,7 +402,7 @@ const showScores = () => {
         })
     } else {
         // Filler text if no scores are stored in localStorage
-        scoreList.innerHTML = "<p>Awaiting new scores!</p>"
+        scoreList.innerHTML = "<p>Awaiting new scores!</p>";
     }
 }
 
